@@ -10,7 +10,6 @@ import com.project.spring.repository.ExpenseRepository;
 import com.project.spring.service.ExpenseService;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /*
@@ -22,7 +21,6 @@ public class ExpenseServiceImpl implements ExpenseService {
 	private final ExpenseRepository expenseRepository;
 	private final ModelMapper modelMapper;
 	
-    @Autowired
     public ExpenseServiceImpl (ExpenseRepository expenseRepository, ModelMapper modelMapper) {
     	this.expenseRepository = expenseRepository;
     	this.modelMapper = modelMapper;

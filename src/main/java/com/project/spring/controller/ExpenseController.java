@@ -1,0 +1,69 @@
+package com.project.spring.controller;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.project.spring.dto.ExpenseDTO;
+import com.project.spring.io.ExpenseResponse;
+import com.project.spring.service.ExpenseService;
+
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
+
+@RestController
+@CrossOrigin("*")
+@Slf4j
+public class ExpenseController {
+    private final ExpenseService expenseService;
+    private final ModelMapper modelMapper;
+    
+    @Autowired
+    public ExpenseController(ExpenseService expenseService, ModelMapper modelMapper) {
+    	this.expenseService = expenseService;
+    	this.modelMapper = modelMapper;
+    }
+    
+    /**
+     * It will fetch the expenses from service
+     * @return list
+     */
+    @GetMapping("/expenses")
+    public List<ExpenseResponse> getExpenses() {
+    	log.info("API GET /expenses is called");
+    	List<ExpenseDTO> list = expenseService.getAllExpenses();
+    	log.info("Printing the data from service {}", list);
+    	return list.stream()
+    			.map(expense -> modelMapper.map(expense, ExpenseResponse.class))
+    			.collect(Collectors.toList());
+    }
+    
+    /**
+     * It will fetch the single expense from service
+     * @param expenseId
+     * @return ExpenseResponse
+     */
+    @GetMapping("/expenses/{expenseId}")
+    public ExpenseResponse getExpenseById(@PathVariable String expenseId) {
+    	log.info("API GET /expenses/{} is called", expenseId);
+    	ExpenseDTO expenseDTO = expenseService.getExpenseByExpenseId(expenseId);
+    	log.info("Printing the expense details {}", expenseDTO);
+    	return modelMapper.map(expenseDTO, ExpenseResponse.class);
+    }
+//    private ExpenseResponse mapToExpenseResponse(ExpenseDTO expenseDTO) {
+//    	return this.modelMapper.map(expenseDTO, ExpenseResponse.class);
+//    }
+
+//    @GetMapping
+//    public ResponseEntity<List<ExpenseDTO>> getAllExpenses() {
+//        return ResponseEntity.ok(expenseService.getAllExpenses());
+//    }
+
+}

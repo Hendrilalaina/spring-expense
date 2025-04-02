@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -88,7 +89,7 @@ public class ExpenseController {
      * @param expenseRequest
      * @return ExpenseResponse
      */
-    @Operation(summary = "Post an expense details",
+    @Operation(summary = "Post expense details",
     			description = "Returns an expense response")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping()
@@ -97,6 +98,24 @@ public class ExpenseController {
     	ExpenseDTO expenseDTO = modelMapper.map(expenseRequest, ExpenseDTO.class);
     	expenseDTO = expenseService.saveExpenseDetails(expenseDTO);
     	log.info("Printing the ExpenseDTO {}", expenseDTO);
+    	return modelMapper.map(expenseDTO, ExpenseResponse.class);
+    }
+    
+    /**
+     * It will update the expense details to database
+     * @param expenseRequest
+     * @return ExpenseResponse
+     */
+    @Operation(summary = "Update expense details", 
+    			description = "Returns an updated expense response")
+    @PutMapping("/{expenseId}")
+    public ExpenseResponse updateExpenseDetails(
+    		@RequestBody ExpenseRequest updateRequest,
+    		@PathVariable String expenseId) {
+    	log.info("API PUT /{} request body {}", expenseId, updateRequest);
+    	ExpenseDTO expenseDTO = modelMapper.map(updateRequest, ExpenseDTO.class);
+    	expenseDTO = expenseService.updateExpenseDetails(expenseDTO, expenseId);
+    	log.info("Printing the updated expenseDTO {}", expenseDTO);
     	return modelMapper.map(expenseDTO, ExpenseResponse.class);
     }
 

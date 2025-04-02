@@ -1,6 +1,7 @@
 package com.project.spring.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.project.spring.dto.ExpenseDTO;
@@ -74,5 +75,19 @@ public class ExpenseServiceImpl implements ExpenseService {
     private ExpenseEntity getExpenseEntity(String expenseId) {
     	return expenseRepository.findByExpenseId(expenseId)
     			.orElseThrow(() -> new ResourceNotFoundException("Expense not found for the expense id " + expenseId));
+    }
+    
+    /**
+     * It will save the expense details to database
+     * @param expenseDTO
+     * @return ExpenseDTO
+     */
+    @Override
+    public ExpenseDTO saveExpenseDetails(ExpenseDTO expenseDTO) {
+    	ExpenseEntity expenseEntity = modelMapper.map(expenseDTO, ExpenseEntity.class);
+    	expenseEntity.setExpenseId(UUID.randomUUID().toString());
+    	expenseEntity = expenseRepository.save(expenseEntity);
+    	log.info("Printing the new expense entity details {}", expenseEntity);
+    	return modelMapper.map(expenseEntity, ExpenseDTO.class);
     }
 }

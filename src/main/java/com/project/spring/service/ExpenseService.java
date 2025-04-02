@@ -15,7 +15,7 @@ public interface ExpenseService {
     List<ExpenseDTO> getAllExpenses();
     
     /**
-     * It will fetch the expense from database
+     * It will fetch the expense details from database
      * @param expenseId
      * @return ExpenseDTO
      */

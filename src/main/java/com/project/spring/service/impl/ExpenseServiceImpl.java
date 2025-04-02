@@ -9,6 +9,8 @@ import com.project.spring.exception.ResourceNotFoundException;
 import com.project.spring.repository.ExpenseRepository;
 import com.project.spring.service.ExpenseService;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
  * Service implementation for Expense module
  */
 @Service
+@Slf4j
 public class ExpenseServiceImpl implements ExpenseService {
     
 	private final ExpenseRepository expenseRepository;
@@ -45,52 +48,9 @@ public class ExpenseServiceImpl implements ExpenseService {
      */
     @Override
     public ExpenseDTO getExpenseByExpenseId(String expenseId) {
-    	ExpenseEntity optionalExpense = expenseRepository.findByExpenseId(expenseId)
+    	ExpenseEntity expenseEntity = expenseRepository.findByExpenseId(expenseId)
     			.orElseThrow(() -> new ResourceNotFoundException("Expense not found for the expense id " + expenseId));
-    	return modelMapper.map(optionalExpense, ExpenseDTO.class);
+    	log.info("Printing the expense entity details {}", expenseEntity);
+    	return modelMapper.map(expenseEntity, ExpenseDTO.class);
     }
-//    @Override
-//    public ExpenseDTO getExpenseById(Long id) {
-//        ExpenseEntity expense = expenseRepository.findById(id)
-//                .orElseThrow(() -> new RuntimeException("Expense not found"));
-//        return modelMapper.map(expense, ExpenseDTO.class);
-//    }
-//
-//    @Override
-//    public ExpenseDTO createExpense(ExpenseRequest request) {
-//        ExpenseEntity expense = ExpenseEntity.builder()
-//                .expenseId(UUID.randomUUID().toString())  // Generate a unique expenseId
-//                .name(request.getName())
-//                .note(request.getNote())
-//                .category(request.getCategory())
-//                .date(request.getDate())
-//                .amount(request.getAmount())
-//                .build();
-//
-//        ExpenseEntity savedExpense = expenseRepository.save(expense);
-//        return modelMapper.map(savedExpense, ExpenseDTO.class);
-//    }
-//
-//    @Override
-//    public ExpenseDTO updateExpense(Long id, ExpenseRequest request) {
-//        ExpenseEntity expense = expenseRepository.findById(id)
-//                .orElseThrow(() -> new RuntimeException("Expense not found"));
-//
-//        expense.setName(request.getName());
-//        expense.setNote(request.getNote());
-//        expense.setCategory(request.getCategory());
-//        expense.setDate(request.getDate());
-//        expense.setAmount(request.getAmount());
-//
-//        ExpenseEntity updatedExpense = expenseRepository.save(expense);
-//        return modelMapper.map(updatedExpense, ExpenseDTO.class);
-//    }
-//
-//    @Override
-//    public void deleteExpense(Long id) {
-//        ExpenseEntity expense = expenseRepository.findById(id)
-//                .orElseThrow(() -> new RuntimeException("Expense not found"));
-//        expenseRepository.delete(expense);
-//    }
-
 }

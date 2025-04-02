@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-// @CrossOrigin("*")
+@CrossOrigin("*")
 @Slf4j
 @Tag(name = "Expense Constroller", description = "Expense Controller")
 @RequestMapping(path = "/api/v1")
@@ -37,8 +36,8 @@ public class ExpenseController {
      * It will fetch the expenses from service
      * @return list
      */
-    @Operation(summary = "Get user by ID", 
-               description = "Returns a single user")
+    @Operation(summary = "Get all expenses", 
+    		   description = "Returns all expenses")
     @GetMapping("/expenses")
     public List<ExpenseResponse> getExpenses() {
     	log.info("API GET /expenses is called");
@@ -54,6 +53,8 @@ public class ExpenseController {
      * @param expenseId
      * @return ExpenseResponse
      */
+    @Operation(summary = "Get an expense by expenseId",
+    		   description = "Returns an expense")
     @GetMapping("/expenses/{expenseId}")
     public ExpenseResponse getExpenseById(@PathVariable String expenseId) {
     	log.info("API GET /expenses/{} is called", expenseId);
@@ -61,13 +62,5 @@ public class ExpenseController {
     	log.info("Printing the expense details {}", expenseDTO);
     	return modelMapper.map(expenseDTO, ExpenseResponse.class);
     }
-//    private ExpenseResponse mapToExpenseResponse(ExpenseDTO expenseDTO) {
-//    	return this.modelMapper.map(expenseDTO, ExpenseResponse.class);
-//    }
-
-//    @GetMapping
-//    public ResponseEntity<List<ExpenseDTO>> getAllExpenses() {
-//        return ResponseEntity.ok(expenseService.getAllExpenses());
-//    }
 
 }

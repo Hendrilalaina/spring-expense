@@ -10,7 +10,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, HttpSecurity and, HttpSecurity httpSecurity) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, HttpSecurity and, HttpSecurity httpSecurity) throws Exception {
         httpSecurity.httpBasic(withDefaults());
 
         return http.build();

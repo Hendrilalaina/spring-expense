@@ -53,4 +53,26 @@ public class ExpenseServiceImpl implements ExpenseService {
     	log.info("Printing the expense entity details {}", expenseEntity);
     	return modelMapper.map(expenseEntity, ExpenseDTO.class);
     }
+    
+    /**
+     * It will delete an expense from database
+     * @param expenseId
+     * @return void
+     */
+    @Override
+    public void deleteExpenseByExpenseId(String expenseId) {
+    	ExpenseEntity expenseEntity = getExpenseEntity(expenseId);
+    	log.info("Printing the expense entity {}", expenseEntity);
+    	expenseRepository.delete(expenseEntity);
+    }
+    
+    /**
+     * Fetch the expense by expenseId from database
+     * @param expenseId
+     * @return ExpenseEntity
+     */
+    private ExpenseEntity getExpenseEntity(String expenseId) {
+    	return expenseRepository.findByExpenseId(expenseId)
+    			.orElseThrow(() -> new ResourceNotFoundException("Expense not found for the expense id " + expenseId));
+    }
 }

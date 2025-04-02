@@ -8,8 +8,12 @@ import io.swagger.v3.oas.models.info.Info;
 
 @Configuration
 public class SwaggerConfig {
-  /**
-   * @return
-   */
-  
+	@Bean
+    OpenAPI swaggerHeader() {
+			return new OpenAPI()
+					.info((new Info())
+					.description("Services for the Explore California Relational Database.")
+					.title(StringUtils.substringBefore(getClass().getSimpleName(), "$"))
+					.version("3.0.0"));
+	}
 }

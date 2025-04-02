@@ -10,8 +10,19 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, HttpSecurity and, HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.httpBasic(withDefaults());
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                                .requestMatchers(
+                                		"/api/v1/expenses/**",
+                                        "/swagger-ui/**",        
+                                        "/v3/api-docs/**", 
+                                        "/swagger-ui.html")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated())
+                .httpBasic(withDefaults());
 
         return http.build();
     }

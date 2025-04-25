@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @CrossOrigin("*")
 @Slf4j
 @Tag(name = "Expense Constroller", description = "Expense Controller")
-@RequestMapping(path = "/api/v1/expenses")
+@RequestMapping(path = "/expenses")
 public class ExpenseController {
     private final ExpenseService expenseService;
     private final ModelMapper modelMapper;

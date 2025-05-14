@@ -2,6 +2,7 @@ package com.project.spring.controller;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Tag(name = "Auth Constroller", description = "Auth Controller")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class AuthController {
 	private final ModelMapper modelMapper;
 	private final ProfileService profileService;

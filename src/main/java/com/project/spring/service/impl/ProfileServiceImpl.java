@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.project.spring.dto.ProfileDTO;
 import com.project.spring.entity.ProfileEntity;
+import com.project.spring.exception.ItemExistsException;
 import com.project.spring.repository.ProfileRepository;
 import com.project.spring.service.ProfileService;
 
@@ -29,6 +30,9 @@ public class ProfileServiceImpl implements ProfileService{
 	 */
 	@Override
 	public ProfileDTO createProfile(ProfileDTO profileDTO) {
+		if (profileRepository.existsByEmail(profileDTO.getEmail())) {
+			throw new ItemExistsException("Email already exists" + profileDTO.getEmail());
+		}
 		profileDTO.setPassword(encoder.encode(profileDTO.getPassword()));
 		ProfileEntity profileEntity = modelMapper.map(profileDTO, ProfileEntity.class);
 		profileEntity.setProfileId(UUID.randomUUID().toString());

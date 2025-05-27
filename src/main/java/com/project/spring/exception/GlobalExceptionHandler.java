@@ -41,20 +41,45 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 				.timestamp(new Date())
 				.build();
 	}
-		@Override
-		@Nullable
-		protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex,
-				@NonNull HttpHeaders headers, @NonNull HttpStatusCode status, @NonNull WebRequest request) {
-			// TODO Auto-generated method stub
-			super.handleMethodArgumentNotValid(ex, headers, status, request);
-			Map<String, Object> errorResponse = new HashMap<>();
-			List<String> errors = ex.getBindingResult().getFieldErrors()
-					.stream().map(field -> field.getDefaultMessage())
-					.collect(Collectors.toList());
-			errorResponse.put("statusCode", HttpStatus.BAD_REQUEST.value());
-			errorResponse.put("message", errors);
-			errorResponse.put("timestamp", new Date());
-			errorResponse.put("errorCode", "VALIDATION_FAILED");
-			return new ResponseEntity<Object>(errorResponse, HttpStatus.BAD_REQUEST);
-		}
+	
+	@ResponseStatus(HttpStatus.CONFLICT)
+	@ExceptionHandler(ItemExistsException.class)
+	public ErrorObject handleItemExistsException(ItemExistsException ex, WebRequest request) {
+		log.error("Throwing the ItemExistsException from GlobalExceptionHandler {}", ex.getMessage());
+		return ErrorObject.builder()
+				.errorCode("DATA_NOT_EXISTS")
+				.statusCode(HttpStatus.CONFLICT.value())
+				.message(ex.getMessage())
+				.timestamp(new Date())
+				.build();
+	}
+	
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	@ExceptionHandler(Exception.class)
+	public ErrorObject handleGException(Exception ex, WebRequest request) {
+		log.error("Throwing the ResourceNotFoundException from GlobalExceptionHandler {}", ex.getMessage());
+		return ErrorObject.builder()
+				.errorCode("UNEXPECTED_ERROR")
+				.statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+				.message(ex.getMessage())
+				.timestamp(new Date())
+				.build();
+	}
+	
+	@Override
+	@Nullable
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex,
+			@NonNull HttpHeaders headers, @NonNull HttpStatusCode status, @NonNull WebRequest request) {
+		// TODO Auto-generated method stub
+		super.handleMethodArgumentNotValid(ex, headers, status, request);
+		Map<String, Object> errorResponse = new HashMap<>();
+		List<String> errors = ex.getBindingResult().getFieldErrors()
+				.stream().map(field -> field.getDefaultMessage())
+				.collect(Collectors.toList());
+		errorResponse.put("statusCode", HttpStatus.BAD_REQUEST.value());
+		errorResponse.put("message", errors);
+		errorResponse.put("timestamp", new Date());
+		errorResponse.put("errorCode", "VALIDATION_FAILED");
+		return new ResponseEntity<Object>(errorResponse, HttpStatus.BAD_REQUEST);
+	}
 }

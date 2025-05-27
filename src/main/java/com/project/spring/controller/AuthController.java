@@ -2,15 +2,22 @@ package com.project.spring.controller;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.project.spring.dto.ProfileDTO;
+import com.project.spring.io.AuthRequest;
+import com.project.spring.io.AuthResponse;
 import com.project.spring.io.ProfileRequest;
 import com.project.spring.io.ProfileResponse;
+import com.project.spring.service.CustomUserDetailsService;
 import com.project.spring.service.ProfileService;
+import com.project.spring.service.util.JwtTokenUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,7 +32,9 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController {
 	private final ModelMapper modelMapper;
 	private final ProfileService profileService;
-	
+	private final AuthenticationManager authenticationManager;
+	private final JwtTokenUtil jwtTokenUtil;
+	private final CustomUserDetailsService userDetailsService;
 	
 	/**
 	 * API endpoint to register new user	
@@ -42,5 +51,15 @@ public class AuthController {
 		profileDTO = profileService.createProfile(profileDTO);
 		log.info("Printing the profile DTO details {}", profileDTO);
 		return modelMapper.map(profileDTO, ProfileResponse.class);
+	}
+	
+	@PostMapping("/login")
+	public AuthResponse authenticate(@RequestBody AuthRequest authRequest) {
+		log.info("API /login is called {}", authRequest);
+		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
+		final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getEmail());
+		final String token = jwtTokenUtil.generateToken(userDetails);
+		jwtTokenUtil.generateToken(userDetails);
+		return new AuthResponse(token, authRequest.getEmail());
 	}
 }

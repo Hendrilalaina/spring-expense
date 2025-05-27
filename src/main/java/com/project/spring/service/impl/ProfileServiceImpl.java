@@ -3,6 +3,7 @@ package com.project.spring.service.impl;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.project.spring.dto.ProfileDTO;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ProfileServiceImpl implements ProfileService{
 	private final ProfileRepository profileRepository;
 	private final ModelMapper modelMapper;
+	private final PasswordEncoder encoder;
 	
 	/**
 	 * It will save the user details to database
@@ -27,6 +29,7 @@ public class ProfileServiceImpl implements ProfileService{
 	 */
 	@Override
 	public ProfileDTO createProfile(ProfileDTO profileDTO) {
+		profileDTO.setPassword(encoder.encode(profileDTO.getPassword()));
 		ProfileEntity profileEntity = modelMapper.map(profileDTO, ProfileEntity.class);
 		profileEntity.setProfileId(UUID.randomUUID().toString());
 		profileEntity = profileRepository.save(profileEntity);

@@ -19,10 +19,12 @@ import com.project.spring.io.ProfileRequest;
 import com.project.spring.io.ProfileResponse;
 import com.project.spring.service.CustomUserDetailsService;
 import com.project.spring.service.ProfileService;
+import com.project.spring.service.TokenBlackistService;
 import com.project.spring.service.util.JwtTokenUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,7 @@ public class AuthController {
 	private final AuthenticationManager authenticationManager;
 	private final JwtTokenUtil jwtTokenUtil;
 	private final CustomUserDetailsService userDetailsService;
+	private final TokenBlackistService tokenBlacklistService;
 	
 	/**
 	 * API endpoint to register new user	
@@ -55,14 +58,43 @@ public class AuthController {
 		return modelMapper.map(profileDTO, ProfileResponse.class);
 	}
 	
+	/**
+	 * API endpoint to login user
+	 * @param authRequest
+	 * @return authResponse
+	 * @throws Exception
+	 */
+	@Operation(summary = "Login an user",
+			description = "Returns an authentication response")
 	@PostMapping("/login")
 	public AuthResponse authenticateProfile(@RequestBody AuthRequest authRequest) throws Exception {
 		log.info("API /login is called {}", authRequest);
 		authenticate(authRequest);
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getEmail());
 		final String token = jwtTokenUtil.generateToken(userDetails);
-		jwtTokenUtil.generateToken(userDetails);
 		return new AuthResponse(token, authRequest.getEmail());
+	}
+	
+	/**
+	 * API to logout an authenticated user
+	 * @param request
+	 */
+	@Operation(summary = "Logout an authenticated user")
+	@PostMapping("/signout")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void signout(HttpServletRequest request) {
+		String jwtToken = this.extractJwtTokenFromRequest(request);
+		if (jwtToken != null) {
+			tokenBlacklistService.addTokenToBlacklist(jwtToken);
+		}
+	}
+	
+	private String extractJwtTokenFromRequest(HttpServletRequest request) {
+		String bearerToken = request.getHeader("Authorization");
+		if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+			return bearerToken.substring(7);
+		}
+		return null;
 	}
 	
 	private void authenticate(AuthRequest authRequest) throws Exception {

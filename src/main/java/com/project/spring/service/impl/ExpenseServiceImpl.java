@@ -6,8 +6,10 @@ import java.util.stream.Collectors;
 
 import com.project.spring.dto.ExpenseDTO;
 import com.project.spring.entity.ExpenseEntity;
+import com.project.spring.entity.ProfileEntity;
 import com.project.spring.exception.ResourceNotFoundException;
 import com.project.spring.repository.ExpenseRepository;
+import com.project.spring.service.AuthService;
 import com.project.spring.service.ExpenseService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -24,10 +26,12 @@ public class ExpenseServiceImpl implements ExpenseService {
     
 	private final ExpenseRepository expenseRepository;
 	private final ModelMapper modelMapper;
+	private final AuthService authService;
 	
-    public ExpenseServiceImpl (ExpenseRepository expenseRepository, ModelMapper modelMapper) {
+    public ExpenseServiceImpl (ExpenseRepository expenseRepository, ModelMapper modelMapper, AuthService authService) {
     	this.expenseRepository = expenseRepository;
     	this.modelMapper = modelMapper;
+    	this.authService = authService;
     }
 
     /**
@@ -36,20 +40,22 @@ public class ExpenseServiceImpl implements ExpenseService {
      */
     @Override
     public List<ExpenseDTO> getAllExpenses() {
-        List<ExpenseEntity> list = expenseRepository.findAll();
+    	Long loggedInProfileId = authService.getLoggedInProfile().getId();
+        List<ExpenseEntity> list = expenseRepository.findByOwnerId(loggedInProfileId);
         return list.stream()
                    .map(expense -> modelMapper.map(expense, ExpenseDTO.class))
                    .collect(Collectors.toList());
     }
 
     /**
-     * It will fetch expense from database
+     * It will fetch expense of the owner from database
      * @param expenseId
      * @return ExpenseDTO
      */
     @Override
     public ExpenseDTO getExpenseByExpenseId(String expenseId) {
-    	ExpenseEntity expenseEntity = expenseRepository.findByExpenseId(expenseId)
+    	Long id = authService.getLoggedInProfile().getId();
+    	ExpenseEntity expenseEntity = expenseRepository.findByOwnerIdAndExpenseId(id, expenseId)
     			.orElseThrow(() -> new ResourceNotFoundException("Expense not found for the expense id " + expenseId));
     	log.info("Printing the expense entity details {}", expenseEntity);
     	return modelMapper.map(expenseEntity, ExpenseDTO.class);
@@ -68,12 +74,13 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
     
     /**
-     * Fetch the expense by expenseId from database
+     * Fetch the expense of the owner by expenseId from database
      * @param expenseId
      * @return ExpenseEntity
      */
     private ExpenseEntity getExpenseEntity(String expenseId) {
-    	return expenseRepository.findByExpenseId(expenseId)
+    	Long id = authService.getLoggedInProfile().getId();
+    	return expenseRepository.findByOwnerIdAndExpenseId(id, expenseId)
     			.orElseThrow(() -> new ResourceNotFoundException("Expense not found for the expense id " + expenseId));
     }
     
@@ -84,8 +91,10 @@ public class ExpenseServiceImpl implements ExpenseService {
      */
     @Override
     public ExpenseDTO saveExpenseDetails(ExpenseDTO expenseDTO) {
+    	ProfileEntity profileEntity = authService.getLoggedInProfile();
     	ExpenseEntity expenseEntity = modelMapper.map(expenseDTO, ExpenseEntity.class);
     	expenseEntity.setExpenseId(UUID.randomUUID().toString());
+    	expenseEntity.setOwner(profileEntity);
     	expenseEntity = expenseRepository.save(expenseEntity);
     	log.info("Printing the new expense entity details {}", expenseEntity);
     	return modelMapper.map(expenseEntity, ExpenseDTO.class);

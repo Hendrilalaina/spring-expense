@@ -114,6 +114,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     	newExpenseEntity.setExpenseId(oldExpenseEntity.getExpenseId());
     	newExpenseEntity.setCreatedAt(oldExpenseEntity.getCreatedAt());
     	newExpenseEntity.setUpdatedAt(oldExpenseEntity.getUpdatedAt());
+    	newExpenseEntity.setOwner(oldExpenseEntity.getOwner());
     	newExpenseEntity = expenseRepository.save(newExpenseEntity);
     	log.info("Printing the udpated expense entity details {}", newExpenseEntity);
     	return modelMapper.map(newExpenseEntity, ExpenseDTO.class);

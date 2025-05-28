@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.crypto.SecretKey;
-
 import org.springframework.cglib.core.internal.Function;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -13,21 +11,22 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtTokenUtil {
-	private static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
+	private static final long JWT_TOKEN_VALIDITY = 10 * 60 * 60;
+	
+//	@Value("${jwt.secret}")
+	private String secret = "SPRING";
 	
 	public String generateToken(UserDetails userDetails) {
 		Map<String, Object> claims = new HashMap<>();
-		SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 		return Jwts.builder()
 			.setClaims(claims)
 			.setSubject(userDetails.getUsername())
 			.setIssuedAt(new Date(System.currentTimeMillis()))
 			.setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY))
-			.signWith(key)
+			.signWith(SignatureAlgorithm.HS512, secret)
 			.compact();
 	}
 
@@ -36,8 +35,7 @@ public class JwtTokenUtil {
 	}
 	
 	private <T> T getClaimFromToken(String token, Function<Claims, T> claimResolver) {
-		SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-		final Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+		final Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
 		return claimResolver.apply(claims);
 	}
 	

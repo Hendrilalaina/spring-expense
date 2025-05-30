@@ -2,6 +2,7 @@ package com.project.spring.controller;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -17,6 +18,7 @@ import com.project.spring.io.AuthRequest;
 import com.project.spring.io.AuthResponse;
 import com.project.spring.io.ProfileRequest;
 import com.project.spring.io.ProfileResponse;
+import com.project.spring.io.RefreshTokenRequest;
 import com.project.spring.service.CustomUserDetailsService;
 import com.project.spring.service.ProfileService;
 import com.project.spring.service.TokenBlackistService;
@@ -72,7 +74,8 @@ public class AuthController {
 		authenticate(authRequest);
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getEmail());
 		final String token = jwtTokenUtil.generateToken(userDetails);
-		return new AuthResponse(token, authRequest.getEmail());
+		final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
+		return new AuthResponse(token, refreshToken, authRequest.getEmail());
 	}
 	
 	/**
@@ -88,6 +91,49 @@ public class AuthController {
 			tokenBlacklistService.addTokenToBlacklist(jwtToken);
 		}
 	}
+	
+	/**
+	 * API to refresh token
+	 * @param refreshToken
+	 * @return
+	 * @throws Exception 
+	 */
+	@Operation(summary = "Refresh token")
+	@PostMapping("/refresh-token")
+	public ResponseEntity<AuthResponse> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
+        String refreshToken = refreshTokenRequest.getRefreshToken();
+
+        // Validate refresh token
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            return ResponseEntity.badRequest().body(new AuthResponse(null, null, null));
+        }
+
+        try {
+            // Extract username from refresh token
+            String username = jwtTokenUtil.getUsernameFromToken(refreshToken);
+
+            // Load user details
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+            // Validate refresh token
+            if (jwtTokenUtil.validateToken(refreshToken, userDetails)) {
+                // Generate new access token
+                String newAccessToken = jwtTokenUtil.generateToken(userDetails);
+
+                // Optionally generate a new refresh token (rotating refresh tokens)
+                String newRefreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
+
+                // Return new tokens
+                AuthResponse authResponse = new AuthResponse(newAccessToken, newRefreshToken, username);
+                return ResponseEntity.ok(authResponse);
+            } else {
+                return ResponseEntity.status(401).body(new AuthResponse(null, null, null));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(new AuthResponse(null, null, null));
+        }
+    }
+
 	
 	private String extractJwtTokenFromRequest(HttpServletRequest request) {
 		String bearerToken = request.getHeader("Authorization");

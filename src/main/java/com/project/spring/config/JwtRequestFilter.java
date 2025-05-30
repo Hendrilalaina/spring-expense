@@ -46,7 +46,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				return;
 			}
 			try {
-				email = jwtTokenUtil.generateUsernameFromToken(jwtToken);
+				email = jwtTokenUtil.getUsernameFromToken(jwtToken);
 			} catch (IllegalArgumentException ex) {
 				throw new RuntimeException("Unable to get jwt token");
 			} catch (ExpiredJwtException ex) {

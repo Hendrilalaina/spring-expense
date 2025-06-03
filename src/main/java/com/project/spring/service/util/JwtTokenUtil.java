@@ -14,8 +14,8 @@ import java.util.function.Function;
 
 @Component
 public class JwtTokenUtil {
-    private static final long JWT_TOKEN_VALIDITY = 10 * 60 * 60 * 1000; // 10 hours in milliseconds
-    private static final long REFRESH_TOKEN_VALIDITY = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+    private static final long JWT_TOKEN_VALIDITY = 60 * 1000; // 10 hours in milliseconds
+    private static final long REFRESH_TOKEN_VALIDITY = 1 * 24 * 60 * 60 * 1000; // 1 days in milliseconds
 
 //    @Value("${jwt.secret}")
     private String secret = "SPRING";

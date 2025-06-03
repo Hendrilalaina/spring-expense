@@ -102,7 +102,7 @@ public class AuthController {
 	@PostMapping("/refresh-token")
 	public ResponseEntity<AuthResponse> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
         String refreshToken = refreshTokenRequest.getRefreshToken();
-
+        log.info("API /refresh-token is called with {}", refreshToken);
         // Validate refresh token
         if (refreshToken == null || refreshToken.isEmpty()) {
             return ResponseEntity.badRequest().body(new AuthResponse(null, null, null));

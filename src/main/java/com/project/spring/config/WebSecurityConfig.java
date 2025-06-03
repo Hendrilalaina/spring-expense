@@ -30,7 +30,7 @@ public class WebSecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
-                                "/login", "/register")
+                                "/login", "/register", "/refresh-token")
                 		.permitAll()
                 		.anyRequest()
                 		.authenticated())

@@ -84,12 +84,13 @@ public class AuthController {
 	 */
 	@Operation(summary = "Logout an authenticated user")
 	@PostMapping("/signout")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void signout(HttpServletRequest request) {
-		String jwtToken = this.extractJwtTokenFromRequest(request);
+	public ResponseEntity<?> signout(HttpServletRequest request) {
+		String jwtToken = extractJwtTokenFromRequest(request);
+		log.info("API /signout is called with token {}", jwtToken);
 		if (jwtToken != null) {
 			tokenBlacklistService.addTokenToBlacklist(jwtToken);
 		}
+		return ResponseEntity.ok("Log out successfully");
 	}
 	
 	/**
